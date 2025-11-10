@@ -28,6 +28,7 @@ export default function Login() {
       navigate(user.role === 'admin' ? '/admin' : '/dashboard');
     } catch (err) {
       setError('Invalid username or password');
+      console.log(err)
     } finally {
       setLoading(false);
     }

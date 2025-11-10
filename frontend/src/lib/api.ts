@@ -1,6 +1,6 @@
 // Real REST API integration based on API documentation
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
 
 // Helper function to get auth token
 const getAuthToken = () => {

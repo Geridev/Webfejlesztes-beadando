@@ -38,7 +38,8 @@ def login():
             identity=str(user.id),
             additional_claims={"role": user.role}
         )
-        return jsonify(token=token), 200
+        user = {"id": user.id, "username": user.username, "email": user.email, "role": user.role}
+        return jsonify(access_token=token, user=user), 200
 
     return jsonify(error="Invalid credentials"), 401
 
