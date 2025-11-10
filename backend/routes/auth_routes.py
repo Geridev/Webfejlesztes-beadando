@@ -1,8 +1,6 @@
 from flask import Blueprint, request, jsonify
-from app import db, bcrypt
-from flask_jwt_extended import (
-    create_access_token, jwt_required, get_jwt_identity
-)
+from extensions import db, bcrypt
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from models import User
 
 auth_bp = Blueprint('auth', __name__)
@@ -16,7 +14,6 @@ def register():
     db.session.commit()
     return jsonify(message="User registered successfully"), 201
 
-
 @auth_bp.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
@@ -26,11 +23,8 @@ def login():
         return jsonify(token=token), 200
     return jsonify(error="Invalid credentials"), 401
 
-
 @auth_bp.route('/logout', methods=['POST'])
 @jwt_required()
 def logout():
-    # With JWT, you normally handle logout on the frontend by deleting the token.
-    # Optionally, you could add token blacklisting here.
     current_user = get_jwt_identity()
     return jsonify(message=f"User {current_user['id']} logged out successfully"), 200

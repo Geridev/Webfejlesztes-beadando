@@ -1,4 +1,4 @@
-from app import db
+from extensions import db
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -11,10 +11,10 @@ class User(db.Model):
 class Service(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
-    description = db.Column(db.Text, nullable=True)
+    description = db.Column(db.Text)
     duration = db.Column(db.Integer)
     price = db.Column(db.Float)
-    appointments = db.relationship('Appointment', backref='user', lazy=True, cascade="all, delete")
+    appointments = db.relationship('Appointment', backref='service', lazy=True, cascade="all, delete")
 
 class Appointment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
