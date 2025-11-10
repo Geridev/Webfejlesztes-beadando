@@ -22,3 +22,10 @@ class Appointment(db.Model):
     service_id = db.Column(db.Integer, db.ForeignKey('service.id'), nullable=False)
     datetime = db.Column(db.String(100), nullable=False)
     status = db.Column(db.String(20), default='booked')
+
+class RevokedToken(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    jti = db.Column(db.String(120), nullable=False, unique=True)
+
+    def __repr__(self):
+        return f"<RevokedToken {self.jti}>"

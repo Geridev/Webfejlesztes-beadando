@@ -1,11 +1,11 @@
 from flask import Blueprint, request, jsonify
 from extensions import db, bcrypt
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, get_jwt
-from models import User
+from models import User, RevokedToken
 
 auth_bp = Blueprint('auth', __name__)
 
-# 🟢 Register
+
 @auth_bp.route('/register', methods=['POST'])
 def register():
     data = request.get_json()
@@ -25,7 +25,6 @@ def register():
     return jsonify(message="User registered successfully"), 201
 
 
-# 🟢 Login
 @auth_bp.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
@@ -35,7 +34,6 @@ def login():
     user = User.query.filter_by(username=data['username']).first()
 
     if user and bcrypt.check_password_hash(user.password_hash, data['password']):
-        # ✅ Use string identity and attach role as extra claim
         token = create_access_token(
             identity=str(user.id),
             additional_claims={"role": user.role}
@@ -45,9 +43,11 @@ def login():
     return jsonify(error="Invalid credentials"), 401
 
 
-# 🟡 Logout
 @auth_bp.route('/logout', methods=['POST'])
 @jwt_required()
 def logout():
-    current_user_id = get_jwt_identity()  # now a string
+    jti = get_jwt()["jti"]  # get unique token identifier
+    db.session.add(RevokedToken(jti=jti))
+    db.session.commit()
+    current_user_id = get_jwt_identity()
     return jsonify(message=f"User {current_user_id} logged out successfully"), 200
