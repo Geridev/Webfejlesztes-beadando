@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
 from extensions import db
 from models import Service
 
@@ -23,8 +23,8 @@ def get_services():
 @service_bp.route('/', methods=['POST'])
 @jwt_required()
 def add_service():
-    user = get_jwt_identity()
-    if user['role'] != 'admin':
+    claims = get_jwt()
+    if claims['role'] != 'admin':
         return jsonify(error="Admins only"), 403
     data = request.get_json()
     new_service = Service(**data)
@@ -36,8 +36,8 @@ def add_service():
 @service_bp.route('/<int:id>', methods=['PUT'])
 @jwt_required()
 def update_service(id):
-    user = get_jwt_identity()
-    if user['role'] != 'admin':
+    claims = get_jwt()
+    if claims['role'] != 'admin':
         return jsonify(error="Admins only"), 403
 
     data = request.get_json()
@@ -53,8 +53,8 @@ def update_service(id):
 @service_bp.route('/<int:id>', methods=['DELETE'])
 @jwt_required()
 def delete_service(id):
-    user = get_jwt_identity()
-    if user['role'] != 'admin':
+    claims = get_jwt()
+    if claims['role'] != 'admin':
         return jsonify(error="Admins only"), 403
 
     service = Service.query.get_or_404(id)

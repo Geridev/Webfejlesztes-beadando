@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
 from extensions import db, bcrypt
 from models import User
 
@@ -9,8 +9,8 @@ user_bp = Blueprint('users', __name__)
 @user_bp.route('/', methods=['GET'])
 @jwt_required()
 def get_users():
-    current_user = get_jwt_identity()
-    if current_user['role'] != 'admin':
+    claims = get_jwt()
+    if claims['role'] != 'admin':
         return jsonify(error="Admins only"), 403
     users = User.query.all()
     return jsonify([
@@ -23,9 +23,10 @@ def get_users():
 @user_bp.route('/<int:id>', methods=['GET'])
 @jwt_required()
 def get_user(id):
-    current_user = get_jwt_identity()
+    current_user_id = int(get_jwt_identity())
+    claims = get_jwt()
     user = User.query.get_or_404(id)
-    if current_user['role'] != 'admin' and current_user['id'] != user.id:
+    if claims['role'] != 'admin' and current_user_id != user.id:
         return jsonify(error="Not authorized"), 403
     return jsonify({
         "id": user.id,
@@ -39,10 +40,11 @@ def get_user(id):
 @user_bp.route('/<int:id>', methods=['PUT'])
 @jwt_required()
 def update_user(id):
-    current_user = get_jwt_identity()
+    current_user_id = int(get_jwt_identity())
+    claims = get_jwt()
     user = User.query.get_or_404(id)
 
-    if current_user['role'] != 'admin' and current_user['id'] != user.id:
+    if claims['role'] != 'admin' and current_user_id != user.id:
         return jsonify(error="Not authorized"), 403
 
     data = request.get_json()
@@ -56,7 +58,7 @@ def update_user(id):
         user.password_hash = bcrypt.generate_password_hash(data['password']).decode('utf-8')
 
     # Admins can promote/demote users
-    if current_user['role'] == 'admin' and 'role' in data:
+    if claims['role'] == 'admin' and 'role' in data:
         user.role = data['role']
 
     db.session.commit()
@@ -67,8 +69,8 @@ def update_user(id):
 @user_bp.route('/<int:id>', methods=['DELETE'])
 @jwt_required()
 def delete_user(id):
-    current_user = get_jwt_identity()
-    if current_user['role'] != 'admin':
+    claims = get_jwt()
+    if claims['role'] != 'admin':
         return jsonify(error="Admins only"), 403
 
     user = User.query.get_or_404(id)
