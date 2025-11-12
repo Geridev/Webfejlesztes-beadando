@@ -46,7 +46,7 @@ def create_appointment():
     ).first()
 
     if existing_appointment:
-        return jsonify(error="This appointment slot is already booked"), 409  # 409 Conflict
+        return jsonify(error="This appointment slot is already booked"), 409 # 409 Conflict
 
     new_appointment = Appointment(
         user_id=current_user_id,

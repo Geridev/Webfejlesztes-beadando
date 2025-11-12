@@ -37,7 +37,7 @@ export default function Register() {
       await authAPI.register(username, email, password);
       navigate('/login', { state: { message: 'Registration successful! Please login.' } });
     } catch (err) {
-      setError('Registration failed. Please try again.');
+      setError(err.message || 'Registration failed. Please try again.');
     } finally {
       setLoading(false);
     }
